@@ -1,22 +1,18 @@
-from common.constants.name_constants import *
-from common.constants.event_number import *
-from common.parents.server_parent import server_parent
-from common.utils import generate_json
 from websocket_server import WebsocketServer
 
-import _thread as thread
-import json
+from common.constants.name_constants import *
+from common.parents.server_parent import server_parent
+from common.utils import generate_json
 
 
 class websocket_server(server_parent):
-    def __init__(self, port):
+    def __init__(self, port, name):
         # thread.start_new_thread(self.send_data_by_hand, ())
-        super().__init__(port)
+        super().__init__(name)
 
         self.server = WebsocketServer(port)
-        self.server.set_fn_new_client(self.new_client)
         self.server.set_fn_client_left(self.client_left)
-        self.server.set_fn_message_received(self.message_received)
+        self.server.set_fn_message_received(self.get_message)
         self.server.run_forever()
 
     def send_data_by_hand(self):
@@ -75,8 +71,6 @@ class websocket_server(server_parent):
             self.delete_client(id)
             print(f"client:{id} delete")
 
-
-
     def send_to_one(self, user_id, msg):
         """
         :param user_id: user's id
@@ -84,4 +78,3 @@ class websocket_server(server_parent):
         :return:
         """
         self.server.send_message(self.user_dict[user_id][USER_DICT_CLIENT], msg)
-

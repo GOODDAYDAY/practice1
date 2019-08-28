@@ -53,3 +53,8 @@ class room_parent():
         :return: True or False
         """
         return user_id in self.user_list
+
+    def filter(self, data: dict, *args, **kwargs):
+        """
+        the filter in room
+        """

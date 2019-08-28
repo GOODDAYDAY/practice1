@@ -6,9 +6,6 @@ USER_DICT_OFFLINE = 0
 USER_DICT_ONLINE = 1
 USER_DICT_NAME = "name"
 
-# game common constants
-NAME = "four stone"
-
 # json ele name
 CODE = "code"
 LOGIN_NAME = "name"

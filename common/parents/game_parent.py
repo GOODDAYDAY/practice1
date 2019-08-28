@@ -35,8 +35,8 @@ class game_parent():
         :param data:
         """
 
-    def filter(self, message, info=None):
+    def filter(self, data: dict, *args, **kwargs):
         """
         need to override by implement
-        :param message:
+        :param data:
         """

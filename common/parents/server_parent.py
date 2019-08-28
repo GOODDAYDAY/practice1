@@ -1,3 +1,5 @@
+import copy
+
 from common.constants.event_number import *
 from common.constants.game_content import game_dict, MATCH_SIZE, GAME_ROOM, GAME_BODY_INFO
 from common.constants.name_constants import *
@@ -6,18 +8,15 @@ from common.parents.user_parent import user_parent
 from common.utils import generate_constants
 from common.utils import generate_json
 
-import json
-import copy
-
 
 class server_parent():
-    def __init__(self):
+    def __init__(self, server_name):
         # dict for storing user info
         self.user_dict = {}
         # dict for room list
         self.room_dict: {str: room_parent} = {}
-        # game's name
-        self.name = NAME
+        # server's name
+        self.name = server_name
         # game's match dict
         self.match_dict = {}
 
@@ -96,7 +95,7 @@ class server_parent():
         for i in self.room_dict[room_number].user_list:
             self.send_to_one(i, msg)
 
-    def show_data(self, info=None):
+    def show_data(self):
         """
         show user_dict and room_dict
         :return:
@@ -109,7 +108,7 @@ class server_parent():
         for k, v in self.room_dict.items():
             print(f"k:{k},v:{v}")
 
-    def login(self, data: dict, info=None):
+    def login(self, data: dict, *args, **kwargs):
         """
         need child to override,every way to communicate has a different way to login
         """
@@ -125,7 +124,7 @@ class server_parent():
         self.room_dict[room_id] = room
         return room
 
-    def logout(self, id, info=None):
+    def logout(self, id, *args, **kwargs):
         """
         client logout,but not leave room
         :param id: client's id
@@ -147,7 +146,7 @@ class server_parent():
         :return:
         """
 
-    def match(self, data, info=None):
+    def match(self, data, *args, **kwargs):
         """
         in the future server will send game and game info to client.
         :param data:{
@@ -173,26 +172,25 @@ class server_parent():
             room = self.insert_room(user_id_list, data[GAME])
             room.room_start()
 
-    def get_message(self):
+    def get_message(self, *args, **kwargs) -> dict:
         """
         get message in some way,child need implement it
         """
 
-    def filter(self, message: str, info=None):
+    def filter(self, data: dict, *args, **kwargs):
         """
         message from method:get_message transfer to filter.Server will do something with filter
         :param message: str and from method:get_message
         :param message:
         """
-        data = json.loads(message)
-        print(message)
+        print(data)
         if data[CODE] == LOGIN:
-            self.login(data, info)
+            self.login(data, args, kwargs)
         elif data[CODE] == SHOW_DATA:
-            self.show_data(info)
+            self.show_data()
         elif data[CODE] == LOGOUT:
-            self.logout(data[LOGIN_ID], info)
+            self.logout(data[LOGIN_ID], args, kwargs)
         elif data[CODE] == MATCH:
-            self.match(data, info)
+            self.match(data, args, kwargs)
         elif data[CODE] == ROOM_CODE:
             self.send_to_one_room(data[ROOM], info)
