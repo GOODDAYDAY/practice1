@@ -1,8 +1,8 @@
-from common.constants.name_constants import *
-from common.constants.event_number import *
-
 import json
 import time
+
+from common.constants.event_number import *
+from common.constants.name_constants import *
 
 
 def generate_login(name, id):
@@ -11,7 +11,6 @@ def generate_login(name, id):
         LOGIN_ID: id,
         LOGIN_NAME: name,
         TIMESTAMP: int(time.time() / 1000)
-
     }
     return json.dumps(temp_ele)
 
@@ -54,11 +53,11 @@ def generate_logout(id, name):
     return json.dumps(temp_ele)
 
 
-def generate_match(id, game):
+def generate_match(id, game_id):
     temp_ele = {
         CODE: MATCH,
         LOGIN_ID: id,
-        GAME: game,
+        GAME_ID: game_id,
         TIMESTAMP: int(time.time() / 1000)
     }
     return json.dumps(temp_ele)

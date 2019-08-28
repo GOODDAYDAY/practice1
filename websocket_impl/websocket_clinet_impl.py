@@ -1,20 +1,20 @@
-from common.parents.client_parent import client_parent
-from common.utils import generate_json
-import json
-import threading
+import _thread as thread
+
 import websocket
 
+from common.parents.client_parent import client_parent
+from common.utils import generate_json
 
 
 class websocket_client_impl(client_parent):
     def __init__(self, name, id, ws_url):
-        # thread.start_new_thread(self.send_data, ())
-        super().__int__(name, id, ws_url)
+        thread.start_new_thread(self.send_data, ())
+        super().__int__(name, id)
 
         websocket.enableTrace(True)
         self.ws = websocket.WebSocketApp(
             f"ws://{ws_url}",
-            on_message=self.on_message,
+            on_message=self.get_message,
             on_error=self.on_error,
             on_close=self.on_close,
             on_open=self.on_open)
@@ -35,6 +35,21 @@ class websocket_client_impl(client_parent):
         self.ws.send(generate_json.generate_login(self.name, self.id))
         print("login send")
 
+    def get_message(self, *args, **kwargs):
+        """
+        get message in some way,child need implement it.
+        Then send message to filter
+        """
+        ws = args[0]
+        message = args[1]
+        self.filter(message)
+
+    def send_to_server(self, message: str):
+        """
+        send message in some way,child need implement it.
+        :param message: str
+        """
+        self.ws.send(message)
 
     def send_data(self):
         while 1:
@@ -44,15 +59,4 @@ class websocket_client_impl(client_parent):
             elif name == "2":
                 self.ws.send(generate_json.generate_logout(self.id, self.name))
             elif name == "3":
-                self.ws.send(generate_json.generate_match(self.id))
-
-    def get_number_by_client(self, client):
-        """
-        find client's id from user_dict by client
-        :param client:
-        :return:
-        """
-        for id, ele in self.user_dict.items():
-            if ele[USER_DICT_CLIENT] == client:
-                return id
-        return -1
+                self.ws.send(generate_json.generate_match(self.id, "game1"))

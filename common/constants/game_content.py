@@ -13,8 +13,8 @@ GAME_BODY_INFO = 3
 # four_stone
 def get_four_stone():
     """
-    load game info 
-    :return: (TURN_SIZE,game,game_room)
+    load game info
+    :return: (TURN_SIZE,game,game_room,game_info)
     """
     from game.four_stone.game import four_stone
     from game.four_stone.game_info import four_stone_info

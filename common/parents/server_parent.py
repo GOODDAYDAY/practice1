@@ -1,4 +1,5 @@
 import copy
+import json
 
 from common.constants.event_number import *
 from common.constants.game_content import game_dict, MATCH_SIZE, GAME_ROOM, GAME_BODY_INFO
@@ -69,7 +70,7 @@ class server_parent():
         """
         del self.user_dict[number]
 
-    def send_to_one(self, user_id, msg):
+    def send_to_client(self, user_id, msg):
         """
         need to override,every way to communicate with others is different
         :param user_id: user's id
@@ -93,7 +94,7 @@ class server_parent():
         :return:
         """
         for i in self.room_dict[room_number].user_list:
-            self.send_to_one(i, msg)
+            self.send_to_client(i, msg)
 
     def show_data(self):
         """
@@ -112,6 +113,7 @@ class server_parent():
         """
         need child to override,every way to communicate has a different way to login
         """
+
 
     def insert_room(self, user_list: list, game_id: str) -> room_parent:
         """
@@ -138,41 +140,35 @@ class server_parent():
         else:
             self.user_dict[id][USER_DICT_TYPE] = USER_DICT_OFFLINE
 
-    def send_data(self, id):
-        """
-        need override, which send all data to client.
-        It can solve login again client
-        :param id:
-        :return:
-        """
-
     def match(self, data, *args, **kwargs):
         """
         in the future server will send game and game info to client.
         :param data:{
-            CODE: MATCH_WITHDRAW,
+            CODE: MATCH,
             LOGIN_ID: id,
+            GAME: game,
             TIMESTAMP: int(time.time() / 1000)
         }
         """
         # add user to different match by game
-        if data[GAME] not in self.match_dict:
-            self.match_dict[data[GAME]] = []
-        else:
-            self.match_dict[data[GAME]].append(data[LOGIN_ID])
+        if data[GAME_ID] not in self.match_dict:
+            self.match_dict[data[GAME_ID]] = []
+
+        # add user
+        self.match_dict[data[GAME_ID]].append(data[LOGIN_ID])
 
         # send MATCH_RESPONSE to client
-        self.send_to_one(data[LOGIN_ID], generate_json.generate_match_response(data[LOGIN_ID]))
+        self.send_to_client(data[LOGIN_ID], generate_json.generate_match_response(data[LOGIN_ID]))
 
-        if len(self.match_dict[data[GAME]]) == game_dict[data[GAME]][MATCH_SIZE]:
+        if len(self.match_dict[data[GAME_ID]]) == game_dict[data[GAME_ID]]()[MATCH_SIZE]:
             # match success and get them and recover match_dict
-            user_id_list = copy.deepcopy(self.match_dict[data[GAME]])
-            self.match_dict[data[GAME]] = []
+            user_id_list = copy.deepcopy(self.match_dict[data[GAME_ID]])
+            self.match_dict[data[GAME_ID]] = []
 
-            room = self.insert_room(user_id_list, data[GAME])
+            room = self.insert_room(user_id_list, data[GAME_ID])
             room.room_start()
 
-    def get_message(self, *args, **kwargs) -> dict:
+    def get_message(self, *args, **kwargs):
         """
         get message in some way,child need implement it
         """
@@ -193,4 +189,6 @@ class server_parent():
         elif data[CODE] == MATCH:
             self.match(data, args, kwargs)
         elif data[CODE] == ROOM_CODE:
-            self.send_to_one_room(data[ROOM], info)
+            self.send_to_room(data[ROOM], json.dumps(data))
+        elif data[CODE] == GAME_CODE:
+            self.send_to_client(data[ROOM], json.dumps(data))

@@ -1,26 +1,30 @@
-from common.parents.game_info_parent import game_info_parent
-from common.parents.server_parent import server_parent
+import json
+
+from common.constants.game_content import game_dict
+# from common.parents.game_info_parent import game_info_parent
 from common.utils.generate_json import generate_start
 
 
 class room_parent():
-    def __init__(self, room_id: str, game_id: str, user_list: list, game_info: game_info_parent, server: server_parent):
+
+    def __init__(self, room_id: str, game_id: str, user_list: list, server):
         # load user_list to room
         self.user_list = user_list
-        # load game info,room can send game_info to clients sync
-        self.game_info = game_info
         # load server,so that room can send message to server
         self.server = server
         # self room id
         self.room_id = room_id
         # self game id
         self.game_id = game_id
+        # load game
+        # (TURN_SIZE, game, game_room, game_info)
+        self.turn_size, self.game, self.game_room, self.game_info = game_dict[game_id]()
 
     def send_to_server(self, message: str):
         """
         send message to server
         """
-        self.server.filter(message)
+        self.server.filter(json.loads(message))
 
     def room_start(self):
         """

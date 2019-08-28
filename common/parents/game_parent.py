@@ -2,9 +2,9 @@ from common.parents.client_parent import client_parent
 
 
 class game_parent():
-    def __init__(self, id, room, client: client_parent = None):
-        self.id = id
-        self.room = room
+    def __init__(self, game_id, room_id, client: client_parent = None):
+        self.game_id = game_id
+        self.room_id = room_id
         self.client = client
         # there need a game_info
         # self.game_info = game_info

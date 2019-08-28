@@ -12,7 +12,7 @@ LOGIN_NAME = "name"
 LOGIN_ID = "id"
 TIMESTAMP = "timestamp"
 ROOM = "room"
-GAME = "game"
+GAME_ID = "game_id"
 INFO = "info"
 
 # move ele name

@@ -1,3 +1,4 @@
+import json
 import threading
 
 from common.constants.event_number import *
@@ -16,17 +17,24 @@ class client_parent():
         # game main method
         self.game = None
 
-    def get_message(self, *args, **kwargs) -> dict:
+    def get_message(self, *args, **kwargs):
         """
         get message in some way,child need implement it.
         Then send message to filter
         """
 
-    def send_message_to_server(self, message: str):
+    def send_to_server(self, message: str):
         """
         send message in some way,child need implement it.
         :param message: str
         """
+
+    def send_to_game(self, message: str):
+        """
+        send message to game
+        :param message:
+        """
+        self.game.filter(message)
 
     def filter(self, data: dict, info=None):
         """
@@ -42,7 +50,7 @@ class client_parent():
             self.login_success(data[LOGIN_NAME], data[LOGIN_ID])
         elif data[CODE] == MATCH_RESPONSE:
             # match response make user
-            self.game.filter(data[INFO])
+            pass
         elif data[CODE] == ROOM_START:
             # room_start means game start,receive game info and start game
             th = threading.Thread(target=self.game_start, args=(data[MOVE_TURN], data[ROOM], data[GAME]))
@@ -50,7 +58,10 @@ class client_parent():
             th.start()
         elif data[CODE] == GAME_CODE:
             # game code is send message to game
-            self.game.filter(data[INFO])
+            self.send_to_game(data[INFO])
+        elif data[CODE] == ROOM_CODE:
+            # game code is send message to room,but it need to send to server first
+            self.send_to_server(json.dumps(data))
 
     def login_success(self, name, id):
         """

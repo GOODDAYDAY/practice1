@@ -1,3 +1,6 @@
+import _thread as thread
+import json
+
 from websocket_server import WebsocketServer
 
 from common.constants.name_constants import *
@@ -5,9 +8,9 @@ from common.parents.server_parent import server_parent
 from common.utils import generate_json
 
 
-class websocket_server(server_parent):
+class websocket_server_impl(server_parent):
     def __init__(self, port, name):
-        # thread.start_new_thread(self.send_data_by_hand, ())
+        thread.start_new_thread(self.send_data_by_hand, ())
         super().__init__(name)
 
         self.server = WebsocketServer(port)
@@ -21,24 +24,36 @@ class websocket_server(server_parent):
             if name == "1":
                 self.server.send_message_to_all("xixixixixi")
 
-    def login(self, data, info=None):
+    def get_message(self, *args, **kwargs):
+        """
+        get message in some way,child need implement it
+        """
+        client = args[0]
+        server = args[1]
+        message = args[2]
+        self.filter(json.loads(message), client)
+
+    def login(self, data: dict, *args, **kwargs):
         """
         when a client send login to server,check client and name
-        :param client: client's client
-        :param name: client's name which is name in game
-        :param id: client's old id,if it has one.
+        :param data : {
+            CODE: LOGIN,
+            LOGIN_ID: id,
+            LOGIN_NAME: name,
+            TIMESTAMP: int(time.time() / 1000)
+        }
         :return:
         """
         # load data from info
-        client = info
-        name = data[1]
-        id = data[2] if len(info) == 3 else None
+        client = args[0]
+        id = data[LOGIN_ID]
+        name = data[LOGIN_NAME]
 
         # if id exist,it means client want to login again and get its data before.
         if id != None and id in self.user_dict and self.user_dict[id][USER_DICT_TYPE] == USER_DICT_OFFLINE:
             self.user_dict[id][USER_DICT_TYPE] = USER_DICT_ONLINE
             self.server.send_message(client, generate_json.generate_login_response(id, name))
-            self.send_data(id)
+            self.send_to_client(id)
         # if not exist,give it a new one
         elif not self.check_name_exist(name):
             new_id = self.input_client(client, name)
@@ -60,7 +75,7 @@ class websocket_server(server_parent):
         :return:
         """
         # close connection
-        id = self.get_number_by_client(client)
+        # id = self.get_number_by_client(client)
         if id != -1:
             self.close_client(id)
             print(f"client:{id} close")
@@ -71,7 +86,7 @@ class websocket_server(server_parent):
             self.delete_client(id)
             print(f"client:{id} delete")
 
-    def send_to_one(self, user_id, msg):
+    def send_to_client(self, user_id, msg):
         """
         :param user_id: user's id
         :param msg: message
