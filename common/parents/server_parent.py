@@ -13,7 +13,7 @@ from common.utils import generate_json
 class server_parent():
     def __init__(self, server_name):
         # dict for storing user info
-        self.user_dict = {}
+        self.user_dict = {str: user_parent}
         # dict for room list
         self.room_dict: {str: room_parent} = {}
         # server's name
@@ -49,9 +49,11 @@ class server_parent():
         :param client:
         :return:
         """
-        id = generate_constants.generate_id()
-        self.user_dict[id] = user
-        return id
+        # 设置id和name
+        user.id = generate_constants.generate_id() if not user.get_user_id() else user.get_user_id()
+        user.name = generate_constants.generate_id() if not user.get_name() else user.get_name()
+        self.user_dict[user.id] = user
+        return user.get_user_id(), user.get_name()
 
     def close_client(self, id):
         """
@@ -59,7 +61,7 @@ class server_parent():
         :param id: the id of user_dict
         :return:
         """
-        self.user_dict[id][USER_DICT_TYPE] = USER_DICT_OFFLINE
+        print(id)
         # self.user_dict[id][USER_DICT_CLIENT].close()
 
     def delete_client(self, number):
@@ -113,7 +115,6 @@ class server_parent():
         """
         need child to override,every way to communicate has a different way to login
         """
-
 
     def insert_room(self, user_list: list, game_id: str) -> room_parent:
         """

@@ -4,16 +4,14 @@ import threading
 from common.constants.event_number import *
 from common.constants.game_content import game_dict
 from common.constants.name_constants import *
+from common.parents.user_parent import user_parent
+from common.utils import generate_json
 
 
 class client_parent():
-    def __int__(self, name, id):
-        # self name which is the name in game
-        self.name = name
-        # self id which is the id before
-        self.id = id
-        # if it is login
-        self.is_login = False
+    def __int__(self, user: user_parent):
+        # self user which is the client's user
+        self.user = user
         # game main method
         self.game = None
 
@@ -35,6 +33,12 @@ class client_parent():
         :param message:
         """
         self.game.filter(message)
+
+    def login(self):
+        """
+        in the beginning,send login information to server
+        """
+        self.send_to_server(generate_json.generate_login(self.user.name, self.id))
 
     def filter(self, data: dict, info=None):
         """

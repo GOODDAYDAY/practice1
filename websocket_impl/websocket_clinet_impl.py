@@ -1,16 +1,21 @@
 import _thread as thread
+import json
 
 import websocket
 
 from common.parents.client_parent import client_parent
 from common.utils import generate_json
+from websocket_impl.websocket_user_impl import websocket_user_impl
 
 
 class websocket_client_impl(client_parent):
-    def __init__(self, name, id, ws_url):
+    def __init__(self, id, name, ws_url):
         thread.start_new_thread(self.send_data, ())
-        super().__int__(name, id)
+        # create user
+        user = websocket_user_impl(id, name)
+        super().__int__(user)
 
+        # create websocket client
         websocket.enableTrace(True)
         self.ws = websocket.WebSocketApp(
             f"ws://{ws_url}",
@@ -32,17 +37,17 @@ class websocket_client_impl(client_parent):
         :param ws:
         :return:
         """
-        self.ws.send(generate_json.generate_login(self.name, self.id))
+        self.ws.send(generate_json.generate_login(self.user.get_name(), self.user.get_user_id()))
         print("login send")
 
-    def get_message(self, *args, **kwargs):
+    def get_message(self, message):
         """
         get message in some way,child need implement it.
         Then send message to filter
         """
-        ws = args[0]
-        message = args[1]
-        self.filter(message)
+        # ws = args[0]
+        # message = args[1]
+        self.filter(json.loads(message))
 
     def send_to_server(self, message: str):
         """

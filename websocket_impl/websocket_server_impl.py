@@ -6,6 +6,7 @@ from websocket_server import WebsocketServer
 from common.constants.name_constants import *
 from common.parents.server_parent import server_parent
 from common.utils import generate_json
+from websocket_impl.websocket_user_impl import websocket_user_impl
 
 
 class websocket_server_impl(server_parent):
@@ -24,13 +25,13 @@ class websocket_server_impl(server_parent):
             if name == "1":
                 self.server.send_message_to_all("xixixixixi")
 
-    def get_message(self, *args, **kwargs):
+    def get_message(self, client, server, message):
         """
         get message in some way,child need implement it
         """
-        client = args[0]
-        server = args[1]
-        message = args[2]
+        # client = args[0]
+        # server = args[1]
+        # message = args[2]
         self.filter(json.loads(message), client)
 
     def login(self, data: dict, *args, **kwargs):
@@ -45,25 +46,31 @@ class websocket_server_impl(server_parent):
         :return:
         """
         # load data from info
-        client = args[0]
+        client = args[0][0]
         id = data[LOGIN_ID]
         name = data[LOGIN_NAME]
 
         # if id exist,it means client want to login again and get its data before.
-        if id != None and id in self.user_dict and self.user_dict[id][USER_DICT_TYPE] == USER_DICT_OFFLINE:
-            self.user_dict[id][USER_DICT_TYPE] = USER_DICT_ONLINE
-            self.server.send_message(client, generate_json.generate_login_response(id, name))
-            self.send_to_client(id)
+        # TODO password is nessary
+        if id != None and id in self.user_dict:
+            # switch to login
+            self.user_dict[id].switch_type_login()
+            # set client
+            self.user_dict[id].set_client(client)
+            # send response to client
+            self.send_to_client(id, generate_json.generate_login_response(
+                self.user_dict[id].get_user_id(),
+                self.user_dict[id].get_name()))
         # if not exist,give it a new one
-        elif not self.check_name_exist(name):
-            new_id = self.input_client(client, name)
-            self.server.send_message(client, generate_json.generate_login_response(new_id, name))
-        # if exist and it is online response double login
-        elif self.check_name_exist(name) and self.user_dict[id][USER_DICT_TYPE] == USER_DICT_ONLINE:
-            self.server.send_message(client, generate_json.generate_double_login_response(id, name))
-        # others do nothing
         else:
-            print(f"name : {name} , id : {id} , login unknown error")
+            # new websocket user
+            user = websocket_user_impl(id, name)
+            # set client
+            user.set_client(client)
+            # input to user
+            id, name = self.input_user(user)
+            # send to client
+            self.send_to_client(id, generate_json.generate_login_response(id, name))
 
     def client_left(self, client, server):
         """
@@ -86,10 +93,10 @@ class websocket_server_impl(server_parent):
             self.delete_client(id)
             print(f"client:{id} delete")
 
-    def send_to_client(self, user_id, msg):
+    def send_to_client(self, user_id: str, msg: str):
         """
         :param user_id: user's id
         :param msg: message
         :return:
         """
-        self.server.send_message(self.user_dict[user_id][USER_DICT_CLIENT], msg)
+        self.server.send_message(self.user_dict[user_id].get_client(), msg)
