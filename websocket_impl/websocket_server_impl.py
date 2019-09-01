@@ -40,7 +40,9 @@ class websocket_server_impl(server_parent):
         :param data : {
             CODE: LOGIN,
             LOGIN_ID: id,
-            LOGIN_NAME: name,
+            INFO :{
+                LOGIN_NAME: name
+            }
             TIMESTAMP: int(time.time() / 1000)
         }
         :return:
@@ -48,7 +50,7 @@ class websocket_server_impl(server_parent):
         # load data from info
         client = args[0][0]
         id = data[LOGIN_ID]
-        name = data[LOGIN_NAME]
+        name = data[INFO][LOGIN_NAME]
 
         # if id exist,it means client want to login again and get its data before.
         # TODO password is nessary

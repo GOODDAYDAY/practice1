@@ -1,13 +1,14 @@
 # _*_ coding: utf-8 _*_
 
-from common.parents.game_parent import game_parent
-from common.utils import generate_json
-from game.four_stone.map import *
 from pygame.locals import *
+
+from common.parents.game_parent import game_parent
+from game.four_stone import game_generate_json
+from game.four_stone.map import *
 
 
 class four_stone(game_parent):
-    def __init__(self, turn, ws, id, room):
+    def __init__(self, user_id, turn, ws, id, room):
         super().__init__(ws, id, room)
         # load game_info
         self.four_stone_info = four_stone_info()
@@ -16,6 +17,8 @@ class four_stone(game_parent):
         self.footman_move_position = None
         # self's turn
         self.turn = turn
+        # self's userId
+        self.user_id = user_id
 
     def run(self):
         """
@@ -42,14 +45,12 @@ class four_stone(game_parent):
                     # when mouse click up,record the position and send them to server
                     x, y = self.four_stone_info.get_which_block(event.pos)
                     self.footman_move_position = (x, y)
-                    self.send_to_server(generate_json.generate_move(self.id, self.turn, self.footman_init_position,
-                                                                    self.footman_move_position, self.room))
+
+                    # send message
+                    self.send_to_client(game_generate_json.generate_move(
+                        self.user_id, self.turn, self.footman_init_position,
+                        self.footman_move_position, self.room_id))
+
                     # delete these two position
                     self.footman_move_position = None
                     self.footman_init_position = None
-
-
-
-if __name__ == "__main__":
-    # pass
-    four_stone(0, 1, 1, 1).run()

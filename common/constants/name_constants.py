@@ -14,6 +14,7 @@ TIMESTAMP = "timestamp"
 ROOM = "room"
 GAME_ID = "game_id"
 INFO = "info"
+ACTION = "action"
 
 # move ele name
 MOVE_TURN = "move_turn"

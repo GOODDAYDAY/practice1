@@ -2,7 +2,7 @@ import copy
 import json
 
 from common.constants.event_number import *
-from common.constants.game_content import game_dict, MATCH_SIZE, GAME_ROOM, GAME_BODY_INFO
+from common.constants.game_content import game_dict, MATCH_SIZE, GAME_ROOM
 from common.constants.name_constants import *
 from common.parents.room_parent import room_parent
 from common.parents.user_parent import user_parent
@@ -39,7 +39,7 @@ class server_parent():
         :return: true or false
         """
         for user_id, user in self.user_dict.items():
-            if user.name == name:
+            if user.get_name() == name:
                 return True
         return False
 
@@ -121,9 +121,9 @@ class server_parent():
         generate room and load user_list
         """
         room_id = generate_constants.generate_id()
-        room = game_dict[game_id][GAME_ROOM]
-        room = room(room_id, game_id, user_list, game_dict[game_id][GAME_ROOM], game_dict[game_id][GAME_BODY_INFO],
-                    self)
+        game = game_dict[game_id]()
+        room = game[GAME_ROOM]
+        room = room(room_id, game_id, user_list, self)
         self.room_dict[room_id] = room
         return room
 
@@ -139,7 +139,7 @@ class server_parent():
             del self.user_dict[id]
         # in room means it leave by something wrong,so just turn it to offline
         else:
-            self.user_dict[id][USER_DICT_TYPE] = USER_DICT_OFFLINE
+            self.user_dict[id].swich_type_logout()
 
     def match(self, data, *args, **kwargs):
         """
@@ -151,22 +151,26 @@ class server_parent():
             TIMESTAMP: int(time.time() / 1000)
         }
         """
+        # get constants
+        game_id = data[INFO][GAME_ID]
+        login_id = data[LOGIN_ID]
+
         # add user to different match by game
-        if data[GAME_ID] not in self.match_dict:
-            self.match_dict[data[GAME_ID]] = []
+        if game_id not in self.match_dict:
+            self.match_dict[game_id] = []
 
         # add user
-        self.match_dict[data[GAME_ID]].append(data[LOGIN_ID])
+        self.match_dict[game_id].append(login_id)
 
         # send MATCH_RESPONSE to client
-        self.send_to_client(data[LOGIN_ID], generate_json.generate_match_response(data[LOGIN_ID]))
+        self.send_to_client(login_id, generate_json.generate_match_response(login_id))
 
-        if len(self.match_dict[data[GAME_ID]]) == game_dict[data[GAME_ID]]()[MATCH_SIZE]:
+        if len(self.match_dict[game_id]) == game_dict[game_id]()[MATCH_SIZE]:
             # match success and get them and recover match_dict
-            user_id_list = copy.deepcopy(self.match_dict[data[GAME_ID]])
-            self.match_dict[data[GAME_ID]] = []
+            user_id_list = copy.deepcopy(self.match_dict[game_id])
+            self.match_dict[game_id] = []
 
-            room = self.insert_room(user_id_list, data[GAME_ID])
+            room = self.insert_room(user_id_list, game_id)
             room.room_start()
 
     def get_message(self, *args, **kwargs):
@@ -192,4 +196,6 @@ class server_parent():
         elif data[CODE] == ROOM_CODE:
             self.send_to_room(data[ROOM], json.dumps(data))
         elif data[CODE] == GAME_CODE:
-            self.send_to_client(data[ROOM], json.dumps(data))
+            self.send_to_room_client(data[ROOM], json.dumps(data))
+        elif data[CODE] == ROOM_START:
+            self.send_to_room_client(data[ROOM], json.dumps(data))

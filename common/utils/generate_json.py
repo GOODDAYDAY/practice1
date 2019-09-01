@@ -5,118 +5,79 @@ from common.constants.event_number import *
 from common.constants.name_constants import *
 
 
-def generate_login(name, id):
+def generate_basic_json(code, login_id, info: dict = None):
     temp_ele = {
-        CODE: LOGIN,
-        LOGIN_ID: id,
-        LOGIN_NAME: name,
+        CODE: code,
+        LOGIN_ID: login_id,
+        INFO: info,
         TIMESTAMP: int(time.time() / 1000)
     }
     return json.dumps(temp_ele)
+
+
+def generate_login(name, id):
+    info = {
+        LOGIN_NAME: name
+    }
+    return generate_basic_json(LOGIN, id, info)
 
 
 def generate_login_response(id, name):
-    temp_ele = {
-        CODE: LOGIN_RESPONSE,
-        LOGIN_ID: id,
-        LOGIN_NAME: name,
-        TIMESTAMP: int(time.time() / 1000)
+    info = {
+        LOGIN_NAME: name
     }
-    return json.dumps(temp_ele)
+    return generate_basic_json(LOGIN_RESPONSE, id, info)
 
 
 def generate_double_login_response(id, name):
-    temp_ele = {
-        CODE: DOUBLE_LOGIN_RESPONSE,
-        LOGIN_ID: id,
-        LOGIN_NAME: name,
-        TIMESTAMP: int(time.time() / 1000)
+    info = {
+        LOGIN_NAME: name
     }
-    return json.dumps(temp_ele)
+    return generate_basic_json(DOUBLE_LOGIN_RESPONSE, id, info)
 
 
-def generate_show_data():
-    temp_ele = {
-        CODE: SHOW_DATA,
-        TIMESTAMP: int(time.time() / 1000)
-    }
-    return json.dumps(temp_ele)
+def generate_show_data(id):
+    return generate_basic_json(SHOW_DATA, id)
 
 
 def generate_logout(id, name):
-    temp_ele = {
-        CODE: LOGOUT,
-        LOGIN_ID: id,
-        LOGIN_NAME: name,
-        TIMESTAMP: int(time.time() / 1000)
+    info = {
+        LOGIN_NAME: name
     }
-    return json.dumps(temp_ele)
+    return generate_basic_json(LOGOUT, id, info)
 
 
 def generate_match(id, game_id):
-    temp_ele = {
-        CODE: MATCH,
-        LOGIN_ID: id,
-        GAME_ID: game_id,
-        TIMESTAMP: int(time.time() / 1000)
+    info = {
+        GAME_ID: game_id
     }
-    return json.dumps(temp_ele)
+    return generate_basic_json(MATCH, id, info)
 
 
 def generate_match_response(id):
-    temp_ele = {
-        CODE: MATCH_RESPONSE,
-        LOGIN_ID: id,
-        TIMESTAMP: int(time.time() / 1000)
-    }
-    return json.dumps(temp_ele)
+    return generate_basic_json(MATCH_RESPONSE, id)
 
 
 def generate_match_withdraw(id):
-    temp_ele = {
-        CODE: MATCH_WITHDRAW,
-        LOGIN_ID: id,
-        TIMESTAMP: int(time.time() / 1000)
-    }
-    return json.dumps(temp_ele)
+    return generate_basic_json(MATCH_WITHDRAW, id)
 
 
 def generate_match_withdraw_response(id):
-    temp_ele = {
-        CODE: MATCH_WITHDRAW_RESPONSE,
-        LOGIN_ID: id,
-        TIMESTAMP: int(time.time() / 1000)
-    }
-    return json.dumps(temp_ele)
+    return generate_basic_json(MATCH_WITHDRAW_RESPONSE, id)
 
 
 def generate_start(id, turn, room_id, game_id):
-    temp_ele = {
-        CODE: ROOM_START,
-        LOGIN_ID: id,
+    info = {
         MOVE_TURN: turn,
         ROOM: room_id,
-        GAME: game_id,
-        TIMESTAMP: int(time.time() / 1000)
+        GAME_ID: game_id
     }
-    return json.dumps(temp_ele)
+    return generate_basic_json(ROOM_START, id, info)
 
 
 def generate_game_info(id, info):
-    temp_ele = {
-        CODE: GAME_CODE,
-        LOGIN_ID: id,
-        INFO: info,
-        TIMESTAMP: int(time.time() / 1000)
-    }
-    return json.dumps(temp_ele)
+    return generate_basic_json(GAME_CODE, id, info)
 
 
 def generate_room_info(room_id, info):
-    temp_ele = {
-        CODE: ROOM_CODE,
-        ROOM: room_id,
-        INFO: info,
-        TIMESTAMP: int(time.time() / 1000)
-    }
-    return json.dumps(temp_ele)
+    return generate_basic_json(ROOM_CODE, room_id, info)

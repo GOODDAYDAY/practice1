@@ -29,12 +29,6 @@ class game_parent():
         :return:
         """
 
-    def game_message_filter(self, data: dict):
-        """
-        charge which action to do with different data
-        :param data:
-        """
-
     def filter(self, data: dict, *args, **kwargs):
         """
         need to override by implement

@@ -27,7 +27,7 @@ class client_parent():
         :param message: str
         """
 
-    def send_to_game(self, message: str):
+    def send_to_game(self, message: dict):
         """
         send message to game
         :param message:
@@ -40,6 +40,15 @@ class client_parent():
         """
         self.send_to_server(generate_json.generate_login(self.user.name, self.id))
 
+    def charge_data(self, data: dict):
+        """
+        charge if the data input is right for this client
+        :param data:
+        """
+        if data[LOGIN_ID] != self.id:
+            return False
+        return True
+
     def filter(self, data: dict, info=None):
         """
         message from method:get_message transfer to filter.Client
@@ -48,21 +57,25 @@ class client_parent():
         """
         # print or log data
         print(data)
+        # charge if id is right
+        if not self.charge_data(data):
+            return
         # main filter
         if data[CODE] == LOGIN_RESPONSE:
             # login response
-            self.login_success(data[LOGIN_NAME], data[LOGIN_ID])
+            self.login_success(data[INFO][LOGIN_NAME], data[LOGIN_ID])
         elif data[CODE] == MATCH_RESPONSE:
             # match response make user
             pass
         elif data[CODE] == ROOM_START:
             # room_start means game start,receive game info and start game
-            th = threading.Thread(target=self.game_start, args=(data[MOVE_TURN], data[ROOM], data[GAME]))
+            th = threading.Thread(target=self.game_start,
+                                  args=(data[INFO][MOVE_TURN], data[INFO][ROOM], data[INFO][GAME_ID]))
             th.daemon = True
             th.start()
         elif data[CODE] == GAME_CODE:
             # game code is send message to game
-            self.send_to_game(data[INFO])
+            self.send_to_game(data)
         elif data[CODE] == ROOM_CODE:
             # game code is send message to room,but it need to send to server first
             self.send_to_server(json.dumps(data))
