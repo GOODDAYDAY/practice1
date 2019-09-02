@@ -1,3 +1,5 @@
+import json
+
 from common.parents.client_parent import client_parent
 from common.parents.game_info_parent import game_info_parent
 
@@ -33,7 +35,7 @@ class game_parent():
         :param message:
         :return:
         """
-        self.client.filter(message)
+        self.client.filter(json.loads(message))
 
     def run(self):
         """

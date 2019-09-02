@@ -38,7 +38,7 @@ class client_parent():
         """
         in the beginning,send login information to server
         """
-        self.send_to_server(generate_json.generate_login(self.user.name, self.id))
+        self.send_to_server(generate_json.generate_login(self.user.get_name(), self.user.get_user_id()))
 
     def charge_data(self, data: dict):
         """

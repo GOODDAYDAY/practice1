@@ -1,6 +1,7 @@
-from common.constants.event_number import *
 from common.constants.name_constants import *
 from common.parents.room_parent import room_parent
+from game.four_stone import game_contants
+from game.four_stone import game_generate_json
 
 
 class four_stone_room(room_parent):
@@ -21,12 +22,15 @@ class four_stone_room(room_parent):
         # print or log data
         print(data)
         # main filter
-        if data[ACTION] == ROOM_START:
+        if data[INFO][ACTION] == game_contants.MOVE:
             # room_start means game start,send start and turn message to client
-            pass
-        elif data[ACTION] == GAME_CODE:
-            # game code is send message to game
-            pass
-        elif data[ACTION] == ROOM_CODE:
-            # game code is send message to room,but it need to send to server first
-            pass
+            if self.game_info.move_footman(
+                    data[INFO][MOVE_TURN], data[INFO][MOVE_POSITION_INIT], data[INFO][MOVE_POSITION_MOVE]
+            ):
+                for user_id in self.user_list:
+                    self.send_to_server(
+                        game_generate_json.generate_move_response(
+                            user_id, data[INFO][MOVE_TURN], data[INFO][MOVE_POSITION_INIT],
+                            data[INFO][MOVE_POSITION_MOVE], self.room_id
+                        )
+                    )

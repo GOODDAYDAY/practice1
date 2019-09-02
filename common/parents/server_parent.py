@@ -84,7 +84,7 @@ class server_parent():
         """
         send data to room by room_number
         """
-        self.room_dict[room_id].filter(data)
+        self.room_dict[room_id].filter(json.loads(data))
 
     def send_to_room_client(self, room_number, msg):
         """

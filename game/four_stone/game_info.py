@@ -101,21 +101,27 @@ class four_stone_info():
                 return i
         return -1
 
-    def move_footman(self, position_init, position_move):
-        """
-        check and change position_init to position_move
-        :param position_init: the footman's position
-        :param position_move: the footman want to go to position
-        :return: True or False
-        """
+    def check(self, turn, position_init, position_move):
         # charge if the right turn
-        if self.TURN_NOW != self.charge_which_army(position_init):
+        if turn != self.charge_which_army(position_init):
             return False
         # charge if the position move is empty
         if -1 != self.charge_which_army(position_move):
             return False
         # charge if the position is right
         if 1 != abs((position_init[0] + position_init[1]) - (position_move[0] + position_move[1])):
+            return False
+        return True
+
+    def move_footman(self, turn, position_init, position_move):
+        """
+        check and change position_init to position_move
+        :param position_init: the footman's position
+        :param position_move: the footman want to go to position
+        :return: True or False
+        """
+        # check if it is right to move
+        if not self.check(turn, position_init, position_move):
             return False
 
         # move footman
@@ -150,7 +156,9 @@ class four_stone_info():
         return int(postion[0] * 4 / self.X), int(postion[1] * 4 / self.Y)
 
     """
-    map split
+    ***************************************************************************************************************
+    *                                                map split                                                    *
+    ***************************************************************************************************************
     """
 
     def draw_block(self, screen, images_real, x, y):
