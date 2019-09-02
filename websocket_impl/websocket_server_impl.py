@@ -1,4 +1,3 @@
-import _thread as thread
 import json
 
 from websocket_server import WebsocketServer
@@ -11,19 +10,12 @@ from websocket_impl.websocket_user_impl import websocket_user_impl
 
 class websocket_server_impl(server_parent):
     def __init__(self, port, name):
-        thread.start_new_thread(self.send_data_by_hand, ())
         super().__init__(name)
 
         self.server = WebsocketServer(port)
         self.server.set_fn_client_left(self.client_left)
         self.server.set_fn_message_received(self.get_message)
         self.server.run_forever()
-
-    def send_data_by_hand(self):
-        while 1:
-            name = input("input please:")
-            if name == "1":
-                self.server.send_message_to_all("xixixixixi")
 
     def get_message(self, client, server, message):
         """
@@ -83,6 +75,7 @@ class websocket_server_impl(server_parent):
         :param server: self.server
         :return:
         """
+        # TODO  rewrite
         # close connection
         # id = self.get_number_by_client(client)
         if id != -1:

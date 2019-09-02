@@ -2,7 +2,7 @@ import json
 import threading
 
 from common.constants.event_number import *
-from common.constants.game_content import game_dict
+from common.constants.game_content import game_dict, GAME_BODY_INFO, GAME_BODY
 from common.constants.name_constants import *
 from common.parents.user_parent import user_parent
 from common.utils import generate_json
@@ -45,7 +45,7 @@ class client_parent():
         charge if the data input is right for this client
         :param data:
         """
-        if data[LOGIN_ID] != self.id:
+        if data[LOGIN_ID] != self.user.get_user_id():
             return False
         return True
 
@@ -69,8 +69,9 @@ class client_parent():
             pass
         elif data[CODE] == ROOM_START:
             # room_start means game start,receive game info and start game
-            th = threading.Thread(target=self.game_start,
-                                  args=(data[INFO][MOVE_TURN], data[INFO][ROOM], data[INFO][GAME_ID]))
+            th = threading.Thread(
+                target=self.game_start,
+                args=(data[INFO][MOVE_TURN], data[INFO][ROOM], data[INFO][GAME_ID]))
             th.daemon = True
             th.start()
         elif data[CODE] == GAME_CODE:
@@ -87,9 +88,9 @@ class client_parent():
         :param id:
         :return:
         """
-        self.name = name
-        self.id = id
-        self.is_login = True
+        self.user.user_id = id
+        self.user.name = name
+        self.user.switch_type_login()
 
     def game_start(self, turn: int, room: str, game: str):
         """
@@ -97,7 +98,8 @@ class client_parent():
         :return:
         """
         # run the init method and load the game
-        self.game = game_dict[game]()[1]
+        content = game_dict[game]()
+        self.game = content[GAME_BODY]
         # run the game
-        self.game = self.game(turn, self.id, room)
+        self.game = self.game(self.user.get_user_id(), room, turn, content[GAME_BODY_INFO], self)
         self.game.run()

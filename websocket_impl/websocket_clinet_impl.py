@@ -60,8 +60,8 @@ class websocket_client_impl(client_parent):
         while 1:
             name = input("input please:")
             if name == "1":
-                self.ws.send(generate_json.generate_show_data())
+                self.ws.send(generate_json.generate_show_data(self.user.get_user_id()))
             elif name == "2":
-                self.ws.send(generate_json.generate_logout(self.id, self.name))
+                self.ws.send(generate_json.generate_logout(self.user.get_user_id(), self.user.get_name()))
             elif name == "3":
-                self.ws.send(generate_json.generate_match(self.id, "game1"))
+                self.ws.send(generate_json.generate_match(self.user.get_user_id(), "game1"))

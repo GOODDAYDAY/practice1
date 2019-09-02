@@ -1,17 +1,18 @@
 # _*_ coding: utf-8 _*_
 
+import pygame
 from pygame.locals import *
 
 from common.parents.game_parent import game_parent
 from game.four_stone import game_generate_json
-from game.four_stone.map import *
 
 
 class four_stone(game_parent):
-    def __init__(self, user_id, turn, ws, id, room):
-        super().__init__(ws, id, room)
+    def __init__(self, user_id, room_id, turn, game_info, client):
+        super().__init__(user_id, room_id, turn, game_info, client)
+        # , game_id, room_id, client: client_parent = None
         # load game_info
-        self.four_stone_info = four_stone_info()
+        self.game_info = self.game_info()
         # the position of click
         self.footman_init_position = None
         self.footman_move_position = None
@@ -28,9 +29,9 @@ class four_stone(game_parent):
         # init pygame,ready for hardware
         pygame.init()
         # set window's tittle
-        pygame.display.set_caption(self.four_stone_info.NAME)
+        pygame.display.set_caption(self.game_info.NAME)
         # draw the map
-        draw_picture(self.four_stone_info.fire_footman_list, self.four_stone_info.water_footman_list)
+        self.game_info.draw_picture(self.game_info.fire_footman_list, self.game_info.water_footman_list)
         # main circle
         while True:
             for event in pygame.event.get():
@@ -39,11 +40,11 @@ class four_stone(game_parent):
                     exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # when mouse click down, record the position
-                    x, y = self.four_stone_info.get_which_block(event.pos)
+                    x, y = self.game_info.get_which_block(event.pos)
                     self.footman_init_position = (x, y)
                 elif event.type == pygame.MOUSEBUTTONUP:
                     # when mouse click up,record the position and send them to server
-                    x, y = self.four_stone_info.get_which_block(event.pos)
+                    x, y = self.game_info.get_which_block(event.pos)
                     self.footman_move_position = (x, y)
 
                     # send message

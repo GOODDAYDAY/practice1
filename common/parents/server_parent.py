@@ -194,8 +194,8 @@ class server_parent():
         elif data[CODE] == MATCH:
             self.match(data, args, kwargs)
         elif data[CODE] == ROOM_CODE:
-            self.send_to_room(data[ROOM], json.dumps(data))
+            self.send_to_room(data[INFO][ROOM], json.dumps(data))
         elif data[CODE] == GAME_CODE:
-            self.send_to_room_client(data[ROOM], json.dumps(data))
+            self.send_to_room_client(data[INFO][ROOM], json.dumps(data))
         elif data[CODE] == ROOM_START:
-            self.send_to_room_client(data[ROOM], json.dumps(data))
+            self.send_to_room_client(data[INFO][ROOM], json.dumps(data))

@@ -10,7 +10,7 @@ def generate_basic_json(code, login_id, info: dict = None):
         CODE: code,
         LOGIN_ID: login_id,
         INFO: info,
-        TIMESTAMP: int(time.time() / 1000)
+        TIMESTAMP: int(time.time())
     }
     return json.dumps(temp_ele)
 
@@ -59,6 +59,7 @@ def generate_match_response(id):
 
 
 def generate_match_withdraw(id):
+    # TODO add this logic
     return generate_basic_json(MATCH_WITHDRAW, id)
 
 
