@@ -6,11 +6,16 @@ import websocket
 from common.parents.client_parent import client_parent
 from common.utils import generate_json
 from websocket_impl.websocket_user_impl import websocket_user_impl
+from websocket_impl.websocket_windows import generate_windows
 
 
 class websocket_client_impl(client_parent):
-    def __init__(self, id, name, ws_url):
-        thread.start_new_thread(self.send_data, ())
+    def __init__(self):
+        # get windows
+        self.windows = generate_windows()
+        # get base info
+        id, name, ws_url = self.windows.login_windows()
+        thread.start_new_thread(self.choose_game, ())
         # create user
         user = websocket_user_impl(id, name)
         super().__int__(user)
@@ -56,12 +61,9 @@ class websocket_client_impl(client_parent):
         """
         self.ws.send(message)
 
-    def send_data(self):
-        while 1:
-            name = input("input please:")
-            if name == "1":
-                self.ws.send(generate_json.generate_show_data(self.user.get_user_id()))
-            elif name == "2":
-                self.ws.send(generate_json.generate_logout(self.user.get_user_id(), self.user.get_name()))
-            elif name == "3":
-                self.ws.send(generate_json.generate_match(self.user.get_user_id(), "game1"))
+    def choose_game(self):
+        """
+        the function to choose which game to play
+        """
+        game_id = self.windows.match_window()
+        self.match(game_id)

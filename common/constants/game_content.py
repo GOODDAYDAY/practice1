@@ -22,4 +22,4 @@ def get_four_stone():
     return (2, four_stone, four_stone_room, four_stone_info)
 
 
-game_dict = {"game1": get_four_stone}
+game_dict = {"four_stone": get_four_stone}

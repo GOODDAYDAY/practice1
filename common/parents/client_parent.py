@@ -103,3 +103,9 @@ class client_parent():
         # run the game
         self.game = self.game(self.user.get_user_id(), room, turn, content[GAME_BODY_INFO], self)
         self.game.run()
+
+    def match(self, game_id):
+        """
+        send match message to server
+        """
+        self.send_to_server(generate_json.generate_match(self.user.get_user_id(), game_id))

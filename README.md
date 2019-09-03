@@ -72,6 +72,12 @@
 
 ![model_basic_argv](./picture/model_basic_argv.png)
 
+* game
+    * the main body for running game
+    
+* game_info
+    * storage game's information and charge if game command is legal
+    * room will have one game_info to charge every step of client.
 
 #### In the future
 
@@ -80,3 +86,26 @@
 * 2.Try many ways for communicating.
 
 * 3.Write some interesting game or work.
+
+* 4.room can synchronism game_info with client
+
+
+#### pack with pipenv and pyinstaller
+
+* Pure environment will generate a little executable file.If run pyinstaller in anaconda environment,the executable file will be so large.
+
+* install pipenv
+
+> pip install pipenv
+
+* start create environment
+
+> pipenv install 
+
+> pipenv install pygame==1.9.6 PyInstaller==3.5 websocket-client==0.56.0 websocket-server==0.4
+
+> pipenv run pyinstaller -F main_server.py
+
+> pipenv run pyinstaller -F main_client.py
+
+* find the executable file in `.\dist` path
